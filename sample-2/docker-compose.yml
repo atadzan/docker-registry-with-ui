@@ -1,0 +1,39 @@
+version: '3.3'
+services:
+  mysql:
+    ports:
+      - '3306:3306'
+    container_name: mysql
+    environment:
+      - MYSQL_PASSWORD=supersecret
+      - MYSQL_USERNAME=root
+      - MYSQL_DATABASE=portus
+    volumes:
+      - /var/lib/mysql:${PWD}/data/mysql
+    image: mysql:latest
+
+  portus:
+    ports:
+      - '3000:3000'
+    container_name: portus
+    environment:
+      - REGISTRY_HOST=192.168.2.34
+      - REGISTRY_PORT=5001
+      - REGISTRY_SECURE=false
+      - PORTUS_DB_ADAPTER=mysql2
+      - PORTUS_DB_POOL=5
+      - PORTUS_DB_HOST=db
+      - PORTUS_DB_PORT=3306
+      - PORTUS_DB_USERNAME=root
+      - PORTUS_DB_PASSWORD=supersecret
+      - PORTUS_DB_DATABASE=portus
+    hostname: 'true'
+    volumes:
+#      - '/certs:/certs:ro'
+#      - '/etc/docker:/certs/client:ro'
+#      - '/etc/ssl/certs:/etc/ssl/certs:ro'
+#      - '/etc/pki/ca-trust/extracted/pem:/etc/ssl/certs/ca-bundle.crt:ro'
+      - '/var/run/docker.sock:/var/run/docker.sock:Z'
+    image: opensuse/portus
+    depends_on:
+      - mysql
